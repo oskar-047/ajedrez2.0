@@ -2,12 +2,12 @@ let estado = 0;
 
 let casillas = [
     [12, 13, 14, 15, 16, 14, 13, 12],
-    [11, 11, 11, 11, 11, 11, 11, 11],
+    [11, 11, 11, 11, 11, 11, 11, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 0, 1],
     [2, 3, 4, 5, 6, 4, 3, 2]
 ];
 
@@ -193,8 +193,8 @@ function actualizarCasillasAtacadas(){
             let pieza = casillas[i][j];
             console.log(pieza);
 
+            //Chequeo de ataque de los peones
             if(pieza == 1 || pieza == 11){
-                //Peón blanco
                 //Direccion -1 indica que el peon debe subir, dirección 1 indica que el peon debe bajar
                 let dir = 1;
 
@@ -216,14 +216,15 @@ function actualizarCasillasAtacadas(){
                 }
             }
 
-            if(pieza == 2 || pieza == 4 || pieza == 5 || pieza == 6){
+            //Chequeo de ataque de las otras piezas
+            if(pieza == 2 || pieza == 4 || pieza == 5 || pieza == 6 || pieza == 12 || pieza == 14 || pieza == 15 || pieza == 16){
                 let movimientoActual;
                 
                 //Segun la pieza en la que estemos, se determina el array de movimiento
-                if(pieza == 2) movimientoActual = JSON.parse(JSON.stringify(posibleMovTorre));
-                if(pieza == 4) movimientoActual = JSON.parse(JSON.stringify(posibleMovAlfil));
-                if(pieza == 5) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
-                if(pieza == 6) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
+                if(pieza == 2 || pieza == 12) movimientoActual = JSON.parse(JSON.stringify(posibleMovTorre));
+                if(pieza == 4 || pieza == 14) movimientoActual = JSON.parse(JSON.stringify(posibleMovAlfil));
+                if(pieza == 5 || pieza == 15) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
+                if(pieza == 6 || pieza == 16) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
 
 
                 //console.log(`funciona, fila: ${i} y columna: ${j}`);
@@ -244,28 +245,65 @@ function actualizarCasillasAtacadas(){
                             break;
                         }
 
-                        //se comprueba si estamos atacando a una casilla vacia
-                        if(casillas[nuevaFila][nuevaColumna] == 0){
-                            console.log("FUNCIONA");
-                            ataqueBlanco[nuevaFila][nuevaColumna] = pieza;
+                        //Si es una pieza blanca
+                        if(pieza < 7 && pieza > 0){
+
+                            //Se comprueba si es una pieza amiga para parar
+                            if(casillas[nuevaFila][nuevaColumna] > 0 && casillas[nuevaFila][nuevaColumna] < 10){
+                              
+                                break;
+                            }
+                            
+                            //se comprueba si estamos atacando a una casilla vacia
+                            if(casillas[nuevaFila][nuevaColumna] == 0){
+                                
+                                ataqueBlanco[nuevaFila][nuevaColumna] = pieza;
+
+                                //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
+                                if(pieza == 6 || pieza == 2){
+                                    break;
+                                }
+                            }
+
+                            if(casillas[nuevaFila][nuevaColumna] > 10 && casillas[nuevaFila][nuevaColumna] < 17){
+                                //Comprueba si estamos atacando una pieza enemiga
+                                ataqueBlanco[nuevaFila][nuevaColumna] = pieza;
+                                break;
+                            }
                         }
 
+                        //Si es una pieza negra
+                        if(pieza > 10 && pieza < 17){
+                            //Se ejecuta cuando toca una pieza amiga
+                            if(casillas[nuevaFila][nuevaColumna] > 10 && casillas[nuevaFila][nuevaColumna] < 17){
+                                
+                                break;
+                            }
+
+                            //se comprueba si estamos atacando a una casilla vacia
+                            if(casillas[nuevaFila][nuevaColumna] == 0){
+                               
+                                ataqueNegro[nuevaFila][nuevaColumna] = pieza;
+
+                                //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
+                                if(pieza == 16 || pieza == 12){
+                                    break;
+                                }
+                            }
+
+                            if(casillas[nuevaFila][nuevaColumna] < 10 && casillas[nuevaFila][nuevaColumna] > 0){
+                                //Comprueba si estamos atacando una pieza enemiga
+                                ataqueNegro[nuevaFila][nuevaColumna] = pieza;
+                                break;
+                            }
+                        }
 
                         mover[0] += movimientoActual[k][0];
                         mover[1] += movimientoActual[k][1];
 
                     }
                 }
-
-                
-                
-                
-                    
-                
-
-
             }
-            
         }   
     }
 
