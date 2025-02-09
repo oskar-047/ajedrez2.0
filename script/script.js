@@ -2,13 +2,13 @@ let estado = 0;
 
 let casillas = [
     [12, 13, 14, 15, 16, 14, 13, 12],
-    [11, 11, 11, 11, 11, 11, 11, 0],
+    [11, 11, 11, 11, 11, 11, 11, 11],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 0, 0, 0, 0, 1],
-    [2, 3, 4, 5, 6, 4, 3, 2]
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [2, 3, 4, 0, 6, 4, 3, 2]
 ];
 
 //Piezas blancas
@@ -103,7 +103,7 @@ let posibleMovDamaRey = [
 
 
 
-//CREACION DE LOS DIVS CON LAS CASILLAS
+// ------------------------------------------ CREACION DE LAS CASILLAS ------------------------------------------
 for(let i=0; i<8; i++){
     for(let j=0; j<8; j++){
         let casilla = document.createElement("div");
@@ -111,7 +111,7 @@ for(let i=0; i<8; i++){
         casilla.id = `casilla${i}${j}`;
         casilla.classList = 'casilla';
 
-        casilla.setAttribute('onclick', `mover(${i}, ${j})`);
+        casilla.setAttribute('onclick', `posMov(${i}, ${j}, movimiento, false)`);
 
         casilla.style.backgroundImage = `url(img/${casillas[i][j]}.png)`;
 
@@ -147,15 +147,60 @@ function pintarCasillas(){
 
 
 function mover(fila, columna){
-    console.log(`fila: ${fila}. columna: ${columna}`);
+    //console.log(`fila: ${fila}. columna: ${columna}`);
 
     if(estado == 0){
         pintarPosiblesMov(fila, columna, casillas[fila][columna]);
+        console.log("funciona" + casillas[fila][columna]);
     }
 }
 
 function pintarPosiblesMov(fila, columna, pieza){
     console.log(`pieza: ${pieza}`);
+
+    casilla = document.getElementById(`casilla${fila}${columna}`);
+
+    if(pieza == 1 || pieza == 11){
+        //Direccion -1 indica que el peon debe subir, dirección 1 indica que el peon debe bajar
+        let dir = 1;
+
+        //Se guarda la direccion de la pieza
+        (pieza==1) ? dir = -1 : dir = 1;
+
+        //POSIBLES MOV DE ATAQUE DEL PEON
+        if(columna > 0){
+            if(dir == -1 && fila < 7 && casillas[fila+dir][columna-1] > 10){
+                movimiento[fila+dir][columna-1] = 1;
+                document.getElementById(`casilla${fila+dir}${columna-1}`).style.backgroundColor = '#3c3';
+            }
+            if(dir == 1 && fila > 0 && casillas[fila+dir][columna-1] < 10 && casillas[fila+dir][columna-1] > 0){
+                movimiento[fila+dir][columna-1] = 1;
+                document.getElementById(`casilla${fila+dir}${columna-1}`).style.backgroundColor = '#3c3';
+            }
+
+            
+        }
+        if(columna < 7){
+            if(dir == -1 && fila < 7 && casillas[fila+dir][columna+1] > 10){
+                movimiento[fila+dir][columna+1] = 1;
+                document.getElementById(`casilla${fila+dir}${columna+1}`).style.backgroundColor = '#3c3';
+            }
+            if(dir == 1 && fila > 0 && casillas[fila+dir][columna+1] < 10 && casillas[fila+dir][columna+1] > 0){
+                movimiento[fila+dir][columna+1] = 1;
+                document.getElementById(`casilla${fila+dir}${columna+1}`).style.backgroundColor = '#3c3';
+            }
+        }
+
+        if(dir == -1 && fila > 0){
+            movimiento[fila+dir][columna];
+            document.getElementById(`casilla${fila+dir}${columna}`).style.backgroundColor = '#3c3';
+        }
+        if(dir == 1 && fila < 7){
+            movimiento[fila+dir][columna];
+            document.getElementById(`casilla${fila+dir}${columna}`).style.backgroundColor = '#3c3';
+        }
+    }
+    
 }
 
 
@@ -191,7 +236,6 @@ function actualizarCasillasAtacadas(){
         for(let j=0; j<8; j++){
 
             let pieza = casillas[i][j];
-            console.log(pieza);
 
             //Chequeo de ataque de los peones
             if(pieza == 1 || pieza == 11){
@@ -202,26 +246,31 @@ function actualizarCasillasAtacadas(){
                 (pieza==1) ? dir = -1 : dir = 1;
 
                 //POSIBLES MOV DE ATAQUE DEL PEON
-                if(j > 0 && j < 7){
+                if(j > 0){
                     if(dir == -1 && i < 7){
-                        //console.log("funciona");
-                        ataqueBlanco[i+dir][j+1] = pieza;
                         ataqueBlanco[i+dir][j-1] = pieza;
                     }
                     if(dir == 1 && i > 0){
-                        //console.log("funciona2");
-                        ataqueNegro[i+dir][j+1] = pieza;
                         ataqueNegro[i+dir][j-1] = pieza;
+                    }
+                }
+                if(j < 7){
+                    if(dir == -1 && i < 7){
+                        ataqueBlanco[i+dir][j+1] = pieza;
+                    }
+                    if(dir == 1 && i > 0){
+                        ataqueNegro[i+dir][j+1] = pieza;
                     }
                 }
             }
 
             //Chequeo de ataque de las otras piezas
-            if(pieza == 2 || pieza == 4 || pieza == 5 || pieza == 6 || pieza == 12 || pieza == 14 || pieza == 15 || pieza == 16){
+            if(pieza == 2 || pieza == 3 || pieza == 4 || pieza == 5 || pieza == 6 || pieza == 12 || pieza == 13 || pieza == 14 || pieza == 15 || pieza == 16){
                 let movimientoActual;
                 
                 //Segun la pieza en la que estemos, se determina el array de movimiento
                 if(pieza == 2 || pieza == 12) movimientoActual = JSON.parse(JSON.stringify(posibleMovTorre));
+                if(pieza == 3 || pieza == 13) movimientoActual = JSON.parse(JSON.stringify(posibleMovCaballo));
                 if(pieza == 4 || pieza == 14) movimientoActual = JSON.parse(JSON.stringify(posibleMovAlfil));
                 if(pieza == 5 || pieza == 15) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
                 if(pieza == 6 || pieza == 16) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
@@ -241,7 +290,6 @@ function actualizarCasillasAtacadas(){
 
                         //Se comprueba si hemos salido de los bordes
                         if(nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7){
-                            console.log("estas fuera");
                             break;
                         }
 
@@ -260,7 +308,7 @@ function actualizarCasillasAtacadas(){
                                 ataqueBlanco[nuevaFila][nuevaColumna] = pieza;
 
                                 //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
-                                if(pieza == 6 || pieza == 2){
+                                if(pieza == 6 || pieza == 3){
                                     break;
                                 }
                             }
@@ -286,7 +334,7 @@ function actualizarCasillasAtacadas(){
                                 ataqueNegro[nuevaFila][nuevaColumna] = pieza;
 
                                 //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
-                                if(pieza == 16 || pieza == 12){
+                                if(pieza == 16 || pieza == 13){
                                     break;
                                 }
                             }
@@ -314,11 +362,180 @@ function actualizarCasillasAtacadas(){
 }
 
 
+function posMov(fila, columna, arrayPintar, comprobarAtaque){
+    calcularMov(fila, columna, arrayPintar, arrayPintar, comprobarAtaque);
 
-actualizarCasillasAtacadas();
+    for(let i=0; i<8; i++){
+        for(let j=0; j<8; j++){
+            if(arrayPintar[i][j] != 0){
+                document.getElementById(`casilla${i}${j}`).style.backgroundColor = 'green';
+            }
+        }
+    }
+
+    console.table(movimiento);
+
+}
+
+function calcularMov(fila, columna, ataque1, ataque2, comprobarAtaque){
+    let pieza = casillas[fila][columna];
+
+    //Chequeo de ataque de los peones
+    if(pieza == 1 || pieza == 11){
+        //Direccion -1 indica que el peon debe subir, dirección 1 indica que el peon debe bajar
+        let dir = 1;
+
+        //Se guarda la direccion de la pieza
+        (pieza==1) ? dir = -1 : dir = 1;
+
+        if(comprobarAtaque){
+            //POSIBLES MOV DE ATAQUE DEL PEON
+            if(columna > 0){
+                //MOVIMIENTOS A LA IZQUIERDA
+                if(dir == -1 && fila > 0){
+                    ataque1[fila+dir][columna-1] = pieza;
+                }
+                if(dir == 1 && fila < 7){
+                    ataque2[fila+dir][columna-1] = pieza;
+                }
+            }
+            if(columna < 7){
+                //MOVIMIENTOS A LA DERECHA
+                if(dir == -1 && fila > 0){
+                    ataque1[fila+dir][columna+1] = pieza;
+                }
+                if(dir == 1 && fila < 7){
+                    ataque2[fila+dir][columna+1] = pieza;
+                }
+            }
+        } else{
+            //POSIBLES MOV DE ATAQUE DEL PEON (ATAQUE Y NO ATAQUE)
+            if(columna > 0){
+                //MOVIMIENTOS A LA IZQUIERDA
+                if(dir == -1 && fila > 0 && casillas[fila+dir][columna-1] > 10 && casillas[fila+dir][columna-1] < 20){
+                    ataque1[fila+dir][columna-1] = pieza;
+                }
+                if(dir == 1 && fila < 7 && casillas[fila+dir][columna-1] < 10 && casillas[fila+dir][columna-1] > 0){
+                    ataque2[fila+dir][columna-1] = pieza;
+                }
+            }
+            if(columna < 7){
+                //MOVIMIENTOS A LA DERECHA
+                if(dir == -1 && fila > 0 && casillas[fila+dir][columna+1] > 10 && casillas[fila+dir][columna+1] < 20){
+                    ataque1[fila+dir][columna+1] = pieza;
+                }
+                if(dir == 1 && fila < 7 && casillas[fila+dir][columna+1] < 10 && casillas[fila+dir][columna+1] > 0){
+                    ataque2[fila+dir][columna+1] = pieza;
+                }
+            }
+
+            if(dir == -1 && fila > 0){
+                ataque1[fila+dir][columna] = pieza;
+            }
+            if(dir == 1 && fila < 7){
+                ataque2[fila+dir][columna] = pieza;
+            }
+        }
+        
+    }
+
+    //CHEQUEO DE ATAQUE DE LAS OTRAS PIEZAS
+    if(pieza == 2 || pieza == 3 || pieza == 4 || pieza == 5 || pieza == 6 || pieza == 12 || pieza == 13 || pieza == 14 || pieza == 15 || pieza == 16){
+        let movimientoActual;
+                
+        //Segun la pieza en la que estemos, se determina el array de movimiento
+        if(pieza == 2 || pieza == 12) movimientoActual = JSON.parse(JSON.stringify(posibleMovTorre));
+        if(pieza == 3 || pieza == 13) movimientoActual = JSON.parse(JSON.stringify(posibleMovCaballo));
+        if(pieza == 4 || pieza == 14) movimientoActual = JSON.parse(JSON.stringify(posibleMovAlfil));
+        if(pieza == 5 || pieza == 15) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
+        if(pieza == 6 || pieza == 16) movimientoActual = JSON.parse(JSON.stringify(posibleMovDamaRey));
+
+
+        //Se recorren todas las direcciones posibles de la pieza
+        for(let k=0; k<movimientoActual.length; k++){
+
+            //Se almacena en mover la dirección actual
+            let mover = JSON.parse(JSON.stringify(movimientoActual[k]));
+    
+            while(true){
+                //Se crea un bucle infinito del cual se saldrá cuando la pieza encuentre un borde o una pieza enemiga
+                let nuevaFila = fila + mover[0];
+                let nuevaColumna = columna + mover[1];
+
+                //Se comprueba si hemos salido de los bordes
+                if(nuevaFila < 0 || nuevaFila > 7 || nuevaColumna < 0 || nuevaColumna > 7){
+                    break;
+                }
+
+                //Si es una pieza blanca
+                if(pieza < 7 && pieza > 0){
+
+                    //Se comprueba si es una pieza amiga para parar
+                    if(casillas[nuevaFila][nuevaColumna] > 0 && casillas[nuevaFila][nuevaColumna] < 10){
+                              
+                        break;
+                    }
+                            
+                    //se comprueba si estamos atacando a una casilla vacia
+                    if(casillas[nuevaFila][nuevaColumna] == 0){
+                                
+                        ataque1[nuevaFila][nuevaColumna] = pieza;
+
+                        //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
+                        if(pieza == 6 || pieza == 3){
+                            break;
+                        }
+                    }
+
+                    if(casillas[nuevaFila][nuevaColumna] > 10 && casillas[nuevaFila][nuevaColumna] < 17){
+                        //Comprueba si estamos atacando una pieza enemiga
+                        ataque1[nuevaFila][nuevaColumna] = pieza;
+                        break;
+                    }
+                }
+
+                //Si es una pieza negra
+                if(pieza > 10 && pieza < 17){
+                    //Se ejecuta cuando toca una pieza amiga
+                    if(casillas[nuevaFila][nuevaColumna] > 10 && casillas[nuevaFila][nuevaColumna] < 17){
+                                
+                        break;
+                    }
+
+                    //se comprueba si estamos atacando a una casilla vacia
+                    if(casillas[nuevaFila][nuevaColumna] == 0){
+                               
+                        ataque2[nuevaFila][nuevaColumna] = pieza;
+
+                        //En caso que la pieza sea un caballo o rey, el movimiento se calcula una sola vez
+                        if(pieza == 16 || pieza == 13){
+                            break;
+                        }
+                    }
+
+                    if(casillas[nuevaFila][nuevaColumna] < 10 && casillas[nuevaFila][nuevaColumna] > 0){
+                        //Comprueba si estamos atacando una pieza enemiga
+                        ataque2[nuevaFila][nuevaColumna] = pieza;
+                        break;
+                    }
+                }
+
+                mover[0] += movimientoActual[k][0];
+                mover[1] += movimientoActual[k][1];
+
+            }
+        }
+    }
+
+    console.table(movimiento);
+
+    console.log("ataque blanco: ");
+    console.table(ataqueBlanco);
+    console.log("ataque negro: ");
+    console.table(ataqueNegro);
+}
+
+
 pintarCasillas();
-
-//let moverr = JSON.parse(JSON.stringify(posibleMovCaballo[4]));
-//console.log(moverr);
 
 console.log(posibleMovCaballo.length);
